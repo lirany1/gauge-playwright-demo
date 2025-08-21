@@ -1,6 +1,8 @@
 # Gauge-Playwright Demo
 
-This project demonstrates automated testing using Gauge and Playwright in Python, with continuous integration using Jenkins on Kubernetes. It includes examples of web automation tests for navigating and interacting with web pages.
+[![Gauge Playwright Tests](https://github.com/lirany1/gauge-playwright-demo/actions/workflows/gauge-tests.yml/badge.svg)](https://github.com/lirany1/gauge-playwright-demo/actions/workflows/gauge-tests.yml)
+
+This project demonstrates automated testing using Gauge and Playwright in Python, with continuous integration using GitHub Actions and Jenkins. It includes examples of web automation tests for navigating and interacting with web pages.
 
 ## Prerequisites
 
@@ -85,9 +87,27 @@ The project includes test scenarios for:
 
 After test execution, HTML reports can be found in the `reports/html-report` directory.
 
-## CI/CD Pipeline
+## CI/CD Pipelines
 
-This project includes a Jenkins pipeline for automated testing. The pipeline is defined in `Jenkinsfile` and includes the following stages:
+### GitHub Actions Pipeline
+
+This project uses GitHub Actions for automated testing and report publishing. The workflow is defined in `.github/workflows/gauge-tests.yml` and includes:
+
+- Automated test runs on push and pull requests
+- Test execution in Ubuntu environment
+- Python 3.13 and Node.js setup
+- Gauge and Playwright installation
+- HTML report generation
+- Report publishing to GitHub Pages
+- Artifact upload for test reports
+
+You can view the test reports:
+- As artifacts in each workflow run
+- On GitHub Pages at `https://lirany1.github.io/gauge-playwright-demo/`
+
+### Jenkins Pipeline
+
+This project also includes a Jenkins pipeline for automated testing. The pipeline is defined in `Jenkinsfile` and includes the following stages:
 
 1. **Debug Info**: Displays workspace and system information
 2. **Checkout**: Clones the repository

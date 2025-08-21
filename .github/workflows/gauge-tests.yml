@@ -1,0 +1,68 @@
+name: Gauge Playwright Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  test:
+    name: Run Gauge Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install Gauge
+      run: |
+        npm install -g @getgauge/cli
+        gauge install python
+        gauge install html-report
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install -r requirements.txt
+    
+    - name: Install Playwright browsers
+      run: |
+        source .venv/bin/activate
+        playwright install --with-deps
+    
+    - name: Run Gauge tests
+      run: |
+        source .venv/bin/activate
+        chmod +x start.sh
+        ./start.sh run specs/
+    
+    - name: Upload test report
+      if: always()  # Run even if tests fail
+      uses: actions/upload-artifact@v4
+      with:
+        name: gauge-test-report
+        path: reports/html-report/
+    
+    - name: Deploy report to GitHub Pages
+      if: always() && github.ref == 'refs/heads/main'  # Only deploy on main branch
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: reports/html-report
+        enable_jekyll: false
+        full_commit_message: Update test report for commit ${{ github.sha }}
