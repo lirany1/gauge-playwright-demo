@@ -1,0 +1,10 @@
+{
+  "Language": "python",
+  "Plugins": [
+    "html-report"
+  ],
+  "Runner": {
+    "language": "python",
+    "path": "/Users/liran/gauge-demo/.venv/bin/python"
+  }
+}

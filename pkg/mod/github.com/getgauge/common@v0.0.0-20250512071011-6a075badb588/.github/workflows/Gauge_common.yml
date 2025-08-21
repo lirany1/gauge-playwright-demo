@@ -1,0 +1,21 @@
+name: Gauge common
+on: [push, pull_request]
+jobs:
+
+  build:
+    name: Run test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          check-latest: true
+          go-version-file: 'go.mod'
+
+      - name: Run tests
+        run: go test ./...

@@ -1,0 +1,44 @@
+name: deploy
+concurrency:
+  group: production
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: deploy gauge-go
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+        id: go
+
+      - name: build
+        run: |
+          go run build/make.go --all-platforms
+          go run build/make.go --all-platforms --distro
+
+      - name: update
+        run: |
+          if [ -z "$version" ]; then
+            version=$(cd deploy && ls gauge-go* | head -1 | sed "s/\.[^\.]*$//" | sed "s/gauge-go-//" | sed "s/-[a-z]*\.[a-z0-9_]*$//")
+          fi
+          echo "VERSION=$version" >> $GITHUB_ENV
+
+          echo "---------------------------"
+          echo "Updating release v$version"
+          echo "---------------------------"
+          echo -e "Gauge go v$version\n\n" > desc.txt
+          release_description=$(ruby -e "$(curl -sSfL https://github.com/getgauge/gauge/raw/master/build/create_release_text.rb)" getgauge-contrib gauge-go)
+          echo "$release_description" >> desc.txt
+          echo "Creating new draft for release v$version"
+          gh release create --title "Gauge go v${version}" --notes-file ./desc.txt "v${version}" deploy/gauge-go*
