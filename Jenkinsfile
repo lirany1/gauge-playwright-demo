@@ -28,10 +28,15 @@ pipeline {
                         cleanWs()
                         echo "Cleaning workspace completed"
                         
-                        git branch: 'main',
-                            url: 'https://github.com/lirany1/gauge-playwright-demo.git'
-                        echo "Git checkout completed"
+                        sh '''
+                            git init
+                            git config --global --add safe.directory "*"
+                            git remote add origin https://github.com/lirany1/gauge-playwright-demo.git
+                            git fetch origin
+                            git checkout main
+                        '''
                         
+                        echo "Git checkout completed"
                         sh 'ls -la'
                     } catch (Exception e) {
                         echo "Error during checkout: ${e.message}"
