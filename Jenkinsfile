@@ -6,6 +6,14 @@ pipeline {
     }
     
     stages {
+        stage('Checkout') {
+            steps {
+                cleanWs()
+                git branch: 'main',
+                    url: 'https://github.com/lirany1/gauge-playwright-demo.git'
+            }
+        }
+        
         stage('Setup Tools') {
             steps {
                 sh '''
@@ -70,19 +78,31 @@ pipeline {
     
     post {
         always {
-            node('any') {
-                publishHTML([
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'reports/html-report',
-                    reportFiles: 'index.html',
-                    reportName: 'Gauge Test Report',
-                    reportTitles: ''
-                ])
+            script {
+                try {
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'reports/html-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Gauge Test Report',
+                        reportTitles: ''
+                    ])
+                } catch (Exception e) {
+                    echo "Failed to publish HTML report: ${e.message}"
+                }
                 
-                cleanWs()
+                cleanWs(cleanWhenNotBuilt: true,
+                       deleteDirs: true,
+                       disableDeferredWipeout: true)
             }
+        }
+        failure {
+            echo 'Pipeline failed! Cleaning workspace...'
+            cleanWs(cleanWhenNotBuilt: true,
+                   deleteDirs: true,
+                   disableDeferredWipeout: true)
         }
     }
 }
