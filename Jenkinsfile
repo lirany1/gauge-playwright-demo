@@ -1,22 +1,36 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.13'
-            args '-v $WORKSPACE:/app'
-        }
-    }
+    agent any
     
     environment {
         PYTHON_VERSION = '3.13'
-        HOME = '/app'
     }
     
     stages {
+        stage('Setup Tools') {
+            steps {
+                sh '''
+                    # Download and install Python
+                    wget https://www.python.org/ftp/python/3.13.0/Python-3.13.0.tgz
+                    tar xzf Python-3.13.0.tgz
+                    cd Python-3.13.0
+                    ./configure --enable-optimizations
+                    make altinstall
+                    cd ..
+                    rm -rf Python-3.13.0 Python-3.13.0.tgz
+                    
+                    # Install Node.js
+                    curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh
+                    bash nodesource_setup.sh
+                    apt-get install -y nodejs
+                '''
+            }
+        }
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    # Set working directory
-                    cd /app
+                    # Create and activate virtual environment
+                    python3.13 -m venv .venv
+                    . .venv/bin/activate
                     
                     # Create and activate virtual environment
                     python3 -m venv .venv
@@ -56,17 +70,19 @@ pipeline {
     
     post {
         always {
-            publishHTML([
-                allowMissing: false,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'reports/html-report',
-                reportFiles: 'index.html',
-                reportName: 'Gauge Test Report',
-                reportTitles: ''
-            ])
-            
-            cleanWs()
+            node('any') {
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'reports/html-report',
+                    reportFiles: 'index.html',
+                    reportName: 'Gauge Test Report',
+                    reportTitles: ''
+                ])
+                
+                cleanWs()
+            }
         }
     }
 }
