@@ -6,13 +6,20 @@ pipeline {
     }
     
     stages {
-        stage('Setup Python Environment') {
+        stage('Install Dependencies') {
             steps {
                 sh '''
-                    python -m venv .venv
+                    # Install Python if not available
+                    if ! command -v python3 &> /dev/null; then
+                        apt-get update
+                        apt-get install -y python3 python3-venv python3-pip
+                    fi
+                    
+                    # Create and activate virtual environment
+                    python3 -m venv .venv
                     . .venv/bin/activate
                     pip install -r requirements.txt
-                    playwright install
+                    playwright install --with-deps
                 '''
             }
         }
@@ -20,7 +27,14 @@ pipeline {
         stage('Install Gauge') {
             steps {
                 sh '''
-                    npm install -g @getgauge/cli
+                    # Install Node.js and npm if not available
+                    if ! command -v npm &> /dev/null; then
+                        apt-get update
+                        apt-get install -y nodejs npm
+                    fi
+                    
+                    # Install Gauge and plugins
+                    sudo npm install -g @getgauge/cli
                     gauge install python
                     gauge install html-report
                 '''
