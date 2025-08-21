@@ -6,11 +6,38 @@ pipeline {
     }
     
     stages {
+        stage('Debug Info') {
+            steps {
+                sh '''
+                    echo "Workspace directory:"
+                    pwd
+                    echo "\nCurrent directory contents:"
+                    ls -la
+                    echo "\nGit version:"
+                    git --version
+                    echo "\nSystem information:"
+                    uname -a
+                '''
+            }
+        }
+        
         stage('Checkout') {
             steps {
-                cleanWs()
-                git branch: 'main',
-                    url: 'https://github.com/lirany1/gauge-playwright-demo.git'
+                script {
+                    try {
+                        cleanWs()
+                        echo "Cleaning workspace completed"
+                        
+                        git branch: 'main',
+                            url: 'https://github.com/lirany1/gauge-playwright-demo.git'
+                        echo "Git checkout completed"
+                        
+                        sh 'ls -la'
+                    } catch (Exception e) {
+                        echo "Error during checkout: ${e.message}"
+                        error "Failed to checkout repository"
+                    }
+                }
             }
         }
         
@@ -93,9 +120,18 @@ pipeline {
                     echo "Failed to publish HTML report: ${e.message}"
                 }
                 
-                cleanWs(cleanWhenNotBuilt: true,
-                       deleteDirs: true,
-                       disableDeferredWipeout: true)
+                script {
+                    try {
+                        cleanWs(
+                            cleanWhenNotBuilt: true,
+                            deleteDirs: true,
+                            disableDeferredWipeout: true,
+                            patterns: [[pattern: '.git/**', type: 'EXCLUDE']]
+                        )
+                    } catch (Exception e) {
+                        echo "Warning: Workspace cleanup failed: ${e.message}"
+                    }
+                }
             }
         }
         failure {
