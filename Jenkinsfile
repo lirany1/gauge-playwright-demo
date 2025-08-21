@@ -49,6 +49,13 @@ pipeline {
         stage('Setup Tools') {
             steps {
                 sh '''
+                    # Install required packages
+                    apt-get update
+                    apt-get install -y wget build-essential libssl-dev zlib1g-dev \
+                        libncurses5-dev libncursesw5-dev libreadline-dev libsqlite3-dev \
+                        libgdbm-dev libdb5.3-dev libbz2-dev libexpat1-dev liblzma-dev \
+                        libffi-dev
+                    
                     # Download and install Python
                     wget https://www.python.org/ftp/python/3.13.0/Python-3.13.0.tgz
                     tar xzf Python-3.13.0.tgz
@@ -70,10 +77,6 @@ pipeline {
                 sh '''
                     # Create and activate virtual environment
                     python3.13 -m venv .venv
-                    . .venv/bin/activate
-                    
-                    # Create and activate virtual environment
-                    python3 -m venv .venv
                     . .venv/bin/activate
                     pip install -r requirements.txt
                     playwright install --with-deps
@@ -99,7 +102,6 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                    cd /app
                     . .venv/bin/activate
                     chmod +x start.sh
                     ./start.sh run specs/
