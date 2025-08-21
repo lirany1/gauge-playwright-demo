@@ -1,19 +1,22 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.13'
+            args '-v $WORKSPACE:/app'
+        }
+    }
     
     environment {
         PYTHON_VERSION = '3.13'
+        HOME = '/app'
     }
     
     stages {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    # Install Python if not available
-                    if ! command -v python3 &> /dev/null; then
-                        apt-get update
-                        apt-get install -y python3 python3-venv python3-pip
-                    fi
+                    # Set working directory
+                    cd /app
                     
                     # Create and activate virtual environment
                     python3 -m venv .venv
@@ -27,14 +30,12 @@ pipeline {
         stage('Install Gauge') {
             steps {
                 sh '''
-                    # Install Node.js and npm if not available
-                    if ! command -v npm &> /dev/null; then
-                        apt-get update
-                        apt-get install -y nodejs npm
-                    fi
+                    # Install Node.js and npm
+                    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+                    apt-get install -y nodejs
                     
                     # Install Gauge and plugins
-                    sudo npm install -g @getgauge/cli
+                    npm install -g @getgauge/cli
                     gauge install python
                     gauge install html-report
                 '''
@@ -44,6 +45,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
+                    cd /app
                     . .venv/bin/activate
                     chmod +x start.sh
                     ./start.sh run specs/
