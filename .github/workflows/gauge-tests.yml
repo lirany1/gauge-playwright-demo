@@ -113,12 +113,12 @@ jobs:
         # Update python.properties with correct path
         VENV_PYTHON=$(which python)
         echo "Python interpreter path: $VENV_PYTHON"
-        cat > python.properties << EOF
-# Python properties
-python_command=$VENV_PYTHON
-GAUGE_PYTHON_COMMAND=$VENV_PYTHON
-GAUGE_PYTHON_COMMAND_PATH=$VENV_PYTHON
-EOF
+        cat > python.properties << 'EOF'
+        # Python properties
+        python_command=$VENV_PYTHON
+        GAUGE_PYTHON_COMMAND=$VENV_PYTHON
+        GAUGE_PYTHON_COMMAND_PATH=$VENV_PYTHON
+        EOF
 
         # Verify Python setup
         echo "\nPython configuration:"
