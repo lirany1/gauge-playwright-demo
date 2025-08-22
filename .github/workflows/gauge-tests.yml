@@ -34,39 +34,31 @@ jobs:
         # Install Gauge
         sudo npm install -g @getgauge/cli
         
-        # Show Gauge version
-        echo "Gauge version:"
-        gauge version
-        
         # Install required plugins
-        echo "\nInstalling plugins..."
+        echo "Installing Gauge plugins..."
         gauge install python
         gauge install html-report
         gauge install screenshot
         
-        # Show installed plugins
-        echo "\nInstalled plugins:"
+        # Verify installation
+        echo "\nGauge installation details:"
         gauge version -m
         
-        # Show project structure
-        echo "\nProject specifications:"
-        gauge list --specs -m
-        
-        # Show available steps
-        echo "\nAvailable steps:"
-        gauge list --steps -m
-        
-        # Validate project structure
+        # Validate project
         echo "\nValidating Gauge project..."
         gauge validate
         
-        # Verify installations
-        echo "Gauge version:"
-        gauge version
-        echo "\nInstalled plugins:"
-        gauge list
-        echo "\nGauge config:"
-        gauge config
+        # Show project details
+        echo "\nProject specifications:"
+        gauge list --specs -m
+        
+        echo "\nAvailable steps:"
+        gauge list --steps -m
+        
+        # Display Gauge configuration
+        echo "\nGauge configuration:"
+        gauge config show runner_connection_timeout
+        gauge config show plugin_kill_timeout
       
     - name: Install Python dependencies
       run: |
@@ -104,6 +96,10 @@ jobs:
         export PATH="$PATH:$HOME/.gauge/bin"
         export GAUGE_HOME="$HOME/.gauge"
         export GAUGE_ROOT="$HOME/.gauge"
+        export GAUGE_LOG_LEVEL="debug"
+        
+        # Clear any existing reports
+        rm -rf reports/html-report/*
         
         # Update python.properties with correct path
         VENV_PYTHON=$(which python)
