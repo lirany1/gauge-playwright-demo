@@ -282,6 +282,7 @@ jobs:
         if-no-files-found: error
     
     - name: Deploy report to GitHub Pages
+      id: deploy
       if: always() && github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v3
       with:
@@ -293,3 +294,16 @@ jobs:
         user_name: 'github-actions[bot]'
         user_email: 'github-actions[bot]@users.noreply.github.com'
         commit_message: 'Deploy Test Report'
+
+    - name: Display Report URLs
+      if: always()
+      run: |
+        echo "Test Report Locations:"
+        echo "======================"
+        echo "1. GitHub Pages (if enabled):"
+        echo "   https://${{ github.repository_owner }}.github.io/gauge-playwright-demo/reports/"
+        echo
+        echo "2. GitHub Actions Artifacts:"
+        echo "   https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        echo
+        echo "Note: GitHub Pages deployment may take a few minutes to be available."
