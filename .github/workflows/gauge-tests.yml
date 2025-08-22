@@ -34,18 +34,23 @@ jobs:
         # Install Gauge
         sudo npm install -g @getgauge/cli
         
-        # List available plugins
-        echo "Available Gauge plugins:"
-        gauge list --all
+        # Show Gauge version
+        echo "Gauge version:"
+        gauge version
         
         # Install required plugins
+        echo "\nInstalling plugins..."
         gauge install python
         gauge install html-report
         gauge install screenshot
         
-        # Show installed versions
-        echo "\nInstalled plugin versions:"
+        # Show installed plugins
+        echo "\nInstalled plugins:"
         gauge version -m
+        
+        # Show project structure
+        echo "\nProject structure:"
+        gauge list specs --machine-readable
         
         # Verify installations
         echo "Gauge version:"
@@ -83,18 +88,29 @@ jobs:
       continue-on-error: true
       run: |
         source .venv/bin/activate
+        
         # Ensure directories exist
         mkdir -p reports/html-report
         
         # Set environment variables
         export PATH="$PATH:$HOME/.gauge/bin"
         export GAUGE_HOME="$HOME/.gauge"
+        export GAUGE_ROOT="$HOME/.gauge"
         
         # Update python.properties with correct path
         VENV_PYTHON=$(which python)
         echo "Python interpreter path: $VENV_PYTHON"
         echo "python_command = $VENV_PYTHON" > python.properties
         echo "GAUGE_PYTHON_COMMAND = $VENV_PYTHON" >> python.properties
+        
+        # Verify Gauge setup
+        echo "\nGauge environment:"
+        gauge env list
+        
+        # Verify Python setup
+        echo "\nPython environment:"
+        python -c "import sys; print(sys.executable)"
+        python -c "import getgauge; print('Gauge-Python version:', getgauge.__version__)"
         
         # Show updated python.properties
         echo "Updated python.properties:"
