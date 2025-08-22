@@ -41,23 +41,57 @@ jobs:
         python -m venv .venv
         source .venv/bin/activate
         pip install --no-cache-dir -r requirements.txt
+        pip install playwright pytest-playwright
     
     - name: Install Playwright browsers
       run: |
         source .venv/bin/activate
-        playwright install --with-deps chromium
+        python -m playwright install --with-deps chromium
     
     - name: Run Gauge tests
-      continue-on-error: true  # Continue even if tests fail
+      id: run_tests
+      continue-on-error: true
       run: |
         source .venv/bin/activate
-        chmod +x start.sh
-        ./start.sh run specs/ || true  # Continue even if tests fail
+        # Ensure directories exist
+        mkdir -p reports/html-report
         
-    - name: Verify report directory
+        # Set environment variables
+        export PATH="$PATH:$HOME/.gauge/bin"
+        export GAUGE_HOME="$HOME/.gauge"
+        
+        # Debug information
+        echo "Python version:"
+        python --version
+        echo "Pip packages:"
+        pip list
+        echo "Playwright version:"
+        python -m playwright --version
+        
+        # Run tests
+        chmod +x start.sh
+        ./start.sh run specs/ || echo "Tests failed but continuing..."
+        
+    - name: Verify report generation
       run: |
-        ls -la reports/
-        ls -la reports/html-report/ || echo "No report generated"
+        echo "Checking reports directory..."
+        if [ ! -d "reports/html-report" ] || [ -z "$(ls -A reports/html-report/)" ]; then
+          echo "Creating minimal report..."
+          mkdir -p reports/html-report
+          cat > reports/html-report/index.html << EOF
+          <!DOCTYPE html>
+          <html>
+            <head><title>Gauge Test Report</title></head>
+            <body>
+              <h1>Gauge Test Execution Report</h1>
+              <p>Test execution completed at $(date)</p>
+              <p>Note: Tests failed to generate a complete report.</p>
+            </body>
+          </html>
+          EOF
+        fi
+        echo "Report directory contents:"
+        ls -la reports/html-report/
     
     - name: Create default report if none exists
       if: always()
@@ -77,11 +111,13 @@ jobs:
     
     - name: Deploy report to GitHub Pages
       if: always() && github.ref == 'refs/heads/main'
-      uses: JamesIves/github-pages-deploy-action@v4
+      uses: peaceiris/actions-gh-pages@v3
       with:
-        folder: reports/html-report
-        token: ${{ secrets.GITHUB_TOKEN }}
-        branch: gh-pages
-        clean: true
-        single-commit: true
-        target-folder: reports
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./reports/html-report
+        destination_dir: reports
+        enable_jekyll: false
+        force_orphan: true
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
+        commit_message: 'Deploy Test Report'
