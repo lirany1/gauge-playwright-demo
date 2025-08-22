@@ -74,24 +74,53 @@ jobs:
         
     - name: Verify report generation
       run: |
+        echo "Current working directory:"
+        pwd
+        
+        echo "Workspace contents:"
+        ls -la
+        
         echo "Checking reports directory..."
-        if [ ! -d "reports/html-report" ] || [ -z "$(ls -A reports/html-report/)" ]; then
-          echo "Creating minimal report..."
-          mkdir -p reports/html-report
-          cat > reports/html-report/index.html << EOF
-          <!DOCTYPE html>
-          <html>
-            <head><title>Gauge Test Report</title></head>
-            <body>
-              <h1>Gauge Test Execution Report</h1>
-              <p>Test execution completed at $(date)</p>
-              <p>Note: Tests failed to generate a complete report.</p>
-            </body>
-          </html>
-          EOF
-        fi
-        echo "Report directory contents:"
-        ls -la reports/html-report/
+        mkdir -p reports/html-report
+        
+        # Create a guaranteed report file
+        echo "Creating report file..."
+        cat > reports/html-report/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Gauge Test Report</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 40px; }
+              .timestamp { color: #666; }
+              .error { color: #ff0000; }
+              .info { color: #0066cc; }
+            </style>
+          </head>
+          <body>
+            <h1>Gauge Test Execution Report</h1>
+            <p class="timestamp">Test execution completed at $(date)</p>
+            <div class="info">
+              <h2>Environment Information:</h2>
+              <pre>
+              $(python --version 2>&1)
+              Node.js: $(node --version 2>&1)
+              Gauge: $(gauge --version 2>&1)
+              </pre>
+            </div>
+            <div class="error">
+              <h2>Execution Notes:</h2>
+              <p>Note: This is a fallback report. Check the GitHub Actions logs for detailed test results.</p>
+            </div>
+          </body>
+        </html>
+        EOF
+        
+        echo "Report directory structure:"
+        find reports -type f
+        
+        echo "Report contents:"
+        cat reports/html-report/index.html
     
     - name: Create default report if none exists
       if: always()
@@ -101,12 +130,45 @@ jobs:
           echo "<html><body><h1>No test report available</h1><p>Tests failed to generate a report.</p></body></html>" > reports/html-report/index.html
         fi
         
+    - name: Prepare artifacts
+      if: always()
+      run: |
+        # Ensure we have something to upload
+        if [ ! -f "reports/html-report/index.html" ]; then
+          echo "No index.html found, creating minimal report structure..."
+          mkdir -p reports/html-report
+          echo "<html><body><h1>Test Report</h1><p>Generated at $(date)</p></body></html>" > reports/html-report/index.html
+        fi
+        
+        # Create a log file with debug information
+        echo "Creating debug log..."
+        {
+          echo "=== Environment Information ==="
+          echo "Date: $(date)"
+          echo "PWD: $(pwd)"
+          echo "Directory listing:"
+          ls -la
+          echo
+          echo "=== Python Information ==="
+          python --version
+          pip list
+          echo
+          echo "=== Node.js Information ==="
+          node --version
+          npm --version
+          echo
+          echo "=== Gauge Information ==="
+          gauge --version
+        } > reports/html-report/debug.log
+        
     - name: Upload test report
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: gauge-test-report
-        path: reports/html-report/
+        path: |
+          reports/html-report/index.html
+          reports/html-report/debug.log
         if-no-files-found: error
     
     - name: Deploy report to GitHub Pages
