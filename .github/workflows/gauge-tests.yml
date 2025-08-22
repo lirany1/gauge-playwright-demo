@@ -134,7 +134,7 @@ jobs:
         echo "\nGauge project info:"
         gauge version
         echo "\nGauge plugins:"
-        gauge list plugins -m || true  # List plugins in machine readable format
+        gauge version -m
         echo "\nRunner connection timeout:"
         gauge config runner_connection_timeout
         
