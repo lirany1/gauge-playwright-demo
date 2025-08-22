@@ -60,9 +60,10 @@ jobs:
     
     - name: Deploy report to GitHub Pages
       if: always() && github.ref == 'refs/heads/main'  # Only deploy on main branch
-      uses: peaceiris/actions-gh-pages@v3
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: reports/html-report
-        enable_jekyll: false
-        full_commit_message: Update test report for commit ${{ github.sha }}
+        folder: reports/html-report
+        token: ${{ secrets.GITHUB_TOKEN }}
+        branch: gh-pages
+        clean: true
+        single-commit: true
