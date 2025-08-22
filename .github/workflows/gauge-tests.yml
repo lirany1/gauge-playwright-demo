@@ -29,19 +29,40 @@ jobs:
     - name: Create reports directory
       run: mkdir -p reports/html-report
 
-    - name: Install Gauge
+    - name: Install and configure Gauge
       run: |
+        # Install Gauge
         sudo npm install -g @getgauge/cli
+        
+        # Initialize Gauge
+        gauge init python
+        
+        # Install required plugins
         gauge install python
         gauge install html-report
+        gauge install screenshot
+        
+        # Verify Gauge installation
+        gauge version
+        gauge list
       
     - name: Install Python dependencies
       run: |
-        python -m pip install --upgrade pip
+        # Create and configure virtual environment
+        python -m pip install --upgrade pip virtualenv
         python -m venv .venv
         source .venv/bin/activate
+        
+        # Show Python paths
+        echo "Python executable: $(which python)"
+        echo "Virtual env location: $VIRTUAL_ENV"
+        
+        # Install dependencies
         pip install --no-cache-dir -r requirements.txt
-        pip install playwright pytest-playwright
+        pip install --no-cache-dir playwright pytest-playwright getgauge
+        
+        # Verify installations
+        pip list
     
     - name: Install Playwright browsers
       run: |
@@ -59,6 +80,16 @@ jobs:
         # Set environment variables
         export PATH="$PATH:$HOME/.gauge/bin"
         export GAUGE_HOME="$HOME/.gauge"
+        
+        # Update python.properties with correct path
+        VENV_PYTHON=$(which python)
+        echo "Python interpreter path: $VENV_PYTHON"
+        echo "python_command = $VENV_PYTHON" > python.properties
+        echo "GAUGE_PYTHON_COMMAND = $VENV_PYTHON" >> python.properties
+        
+        # Show updated python.properties
+        echo "Updated python.properties:"
+        cat python.properties
         
         # Debug information
         echo "Python version:"
