@@ -9,7 +9,7 @@ page = None
 def before_suite():
     global playwright, browser, page
     playwright = sync_playwright().start()
-    browser = playwright.chromium.launch(headless=False)
+    browser = playwright.chromium.launch(headless=True)
     page = browser.new_page()
 
 @after_suite
