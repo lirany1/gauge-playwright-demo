@@ -34,10 +34,18 @@ jobs:
         # Install Gauge
         sudo npm install -g @getgauge/cli
         
+        # List available plugins
+        echo "Available Gauge plugins:"
+        gauge list --all
+        
         # Install required plugins
-        gauge install python --version 0.3.19
+        gauge install python
         gauge install html-report
         gauge install screenshot
+        
+        # Show installed versions
+        echo "\nInstalled plugin versions:"
+        gauge version -m
         
         # Verify installations
         echo "Gauge version:"
