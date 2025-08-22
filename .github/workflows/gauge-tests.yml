@@ -60,8 +60,8 @@ jobs:
         echo "Plugin details:"
         gauge version -m
         
-        echo "\nEnvironment details:"
-        gauge env list
+        echo "\nGauge configuration details:"
+        gauge config --list
         
         echo "\nDefault environment variables:"
         cat env/default/default.properties 2>/dev/null || echo "No default.properties found"
