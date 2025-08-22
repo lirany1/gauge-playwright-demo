@@ -142,10 +142,8 @@ jobs:
         echo "\nPython environment:"
         python -c "import sys; print('Python executable:', sys.executable)"
         python -c "import sys; print('Python path:', sys.path)"
-        echo "Gauge-Python version:"
-        pip list | grep getgauge
-        echo "Playwright version:"
-        python -c "import playwright; print(playwright.__version__)"
+        echo "Installed Python packages:"
+        pip list | grep -E "getgauge|playwright"
         
         # Show project structure
         echo "\nProject structure:"
