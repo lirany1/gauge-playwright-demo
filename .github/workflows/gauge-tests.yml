@@ -34,17 +34,18 @@ jobs:
         # Install Gauge
         sudo npm install -g @getgauge/cli
         
-        # Initialize Gauge
-        gauge init python
-        
         # Install required plugins
-        gauge install python
+        gauge install python --version 0.3.19
         gauge install html-report
         gauge install screenshot
         
-        # Verify Gauge installation
+        # Verify installations
+        echo "Gauge version:"
         gauge version
+        echo "\nInstalled plugins:"
         gauge list
+        echo "\nGauge config:"
+        gauge config
       
     - name: Install Python dependencies
       run: |
@@ -90,6 +91,14 @@ jobs:
         # Show updated python.properties
         echo "Updated python.properties:"
         cat python.properties
+        
+        # Set additional Gauge environment variables
+        export GAUGE_PROJECT_ROOT=$PWD
+        export PYTHONPATH=$PWD:$PYTHONPATH
+        
+        # Verify Gauge environment
+        echo "Gauge Project Root: $GAUGE_PROJECT_ROOT"
+        echo "Python Path: $PYTHONPATH"
         
         # Debug information
         echo "Python version:"
