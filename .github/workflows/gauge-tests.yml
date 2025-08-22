@@ -7,6 +7,17 @@ on:
     branches: [ main ]
   workflow_dispatch:  # Allows manual triggering
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   test:
     name: Run Gauge Tests
@@ -281,19 +292,26 @@ jobs:
           reports/html-report/debug.log
         if-no-files-found: error
     
-    - name: Deploy report to GitHub Pages
-      id: deploy
-      if: always() && github.ref == 'refs/heads/main'
-      uses: peaceiris/actions-gh-pages@v3
+    - name: Upload artifact for GitHub Pages
+      if: always()
+      uses: actions/upload-pages-artifact@v3
       with:
-        github_token: '${{ secrets.GITHUB_TOKEN }}'
-        publish_dir: ./reports/html-report
-        destination_dir: reports
-        enable_jekyll: false
-        force_orphan: true
-        user_name: 'github-actions[bot]'
-        user_email: 'github-actions[bot]@users.noreply.github.com'
-        commit_message: 'Deploy Test Report'
+        path: ./reports/html-report
+
+  # Deploy to GitHub Pages
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
     - name: Display Report URLs
       if: always()
