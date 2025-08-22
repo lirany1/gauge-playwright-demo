@@ -115,9 +115,9 @@ jobs:
         echo "Python interpreter path: $VENV_PYTHON"
         cat > python.properties << EOF
 # Python properties
-python_command = $VENV_PYTHON
-GAUGE_PYTHON_COMMAND = $VENV_PYTHON
-GAUGE_PYTHON_COMMAND_PATH = $VENV_PYTHON
+python_command=$VENV_PYTHON
+GAUGE_PYTHON_COMMAND=$VENV_PYTHON
+GAUGE_PYTHON_COMMAND_PATH=$VENV_PYTHON
 EOF
 
         # Verify Python setup
@@ -284,7 +284,7 @@ EOF
       if: always() && github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: '${{ secrets.GITHUB_TOKEN }}'
         publish_dir: ./reports/html-report
         destination_dir: reports
         enable_jekyll: false
