@@ -113,11 +113,11 @@ jobs:
         # Update python.properties with correct path
         VENV_PYTHON=$(which python)
         echo "Python interpreter path: $VENV_PYTHON"
-        cat > python.properties << 'EOF'
+        cat > python.properties << EOF
         # Python properties
-        python_command=$VENV_PYTHON
-        GAUGE_PYTHON_COMMAND=$VENV_PYTHON
-        GAUGE_PYTHON_COMMAND_PATH=$VENV_PYTHON
+        python_command=${VENV_PYTHON}
+        GAUGE_PYTHON_COMMAND=${VENV_PYTHON}
+        GAUGE_PYTHON_COMMAND_PATH=${VENV_PYTHON}
         EOF
 
         # Verify Python setup
@@ -128,14 +128,16 @@ jobs:
         echo "PYTHONPATH: $PYTHONPATH"
         
         # Verify Gauge setup
-        echo "\nGauge environment:"
-        gauge env list
-        gauge env show default
+        echo "\nGauge configuration:"
+        gauge config --list
         
         # Verify Gauge project
         echo "\nGauge project info:"
-        gauge config
-        ls -la "$(gauge config get runner_connection_timeout)"
+        gauge version
+        echo "\nGauge plugins:"
+        gauge list plugins
+        echo "\nRunner connection timeout:"
+        gauge config runner_connection_timeout
         
         # Verify Python setup
         echo "\nPython environment:"
