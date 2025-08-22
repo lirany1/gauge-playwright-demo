@@ -57,8 +57,17 @@ jobs:
         
         # Display Gauge configuration
         echo "\nGauge configuration:"
-        gauge config show runner_connection_timeout
-        gauge config show plugin_kill_timeout
+        echo "Plugin details:"
+        gauge version -m
+        
+        echo "\nEnvironment details:"
+        gauge env list
+        
+        echo "\nDefault environment variables:"
+        cat env/default/default.properties 2>/dev/null || echo "No default.properties found"
+        
+        echo "\nPython environment variables:"
+        cat env/default/python.properties 2>/dev/null || echo "No python.properties found"
       
     - name: Install Python dependencies
       run: |
@@ -104,8 +113,19 @@ jobs:
         # Update python.properties with correct path
         VENV_PYTHON=$(which python)
         echo "Python interpreter path: $VENV_PYTHON"
-        echo "python_command = $VENV_PYTHON" > python.properties
-        echo "GAUGE_PYTHON_COMMAND = $VENV_PYTHON" >> python.properties
+        cat > python.properties << EOF
+# Python properties
+python_command = $VENV_PYTHON
+GAUGE_PYTHON_COMMAND = $VENV_PYTHON
+GAUGE_PYTHON_COMMAND_PATH = $VENV_PYTHON
+EOF
+
+        # Verify Python setup
+        echo "\nPython configuration:"
+        echo "Python version: $(python --version)"
+        echo "Python path: $(which python)"
+        echo "Virtual env: $VIRTUAL_ENV"
+        echo "PYTHONPATH: $PYTHONPATH"
         
         # Verify Gauge setup
         echo "\nGauge environment:"
@@ -124,10 +144,18 @@ jobs:
         python -c "import getgauge; print('Gauge-Python version:', getgauge.__version__)"
         python -c "import playwright; print('Playwright version:', playwright.__version__)"
         
-        # Show project files
-        echo "\nProject files:"
-        ls -R specs/
-        ls -R step_impl/
+        # Show project structure
+        echo "\nProject structure:"
+        tree . || find . -not -path "*/\.*" -type f | sort
+        
+        # Verify Gauge project
+        echo "\nGauge project verification:"
+        gauge version
+        gauge run --version || true  # Show run command version
+        
+        # Run tests with detailed output
+        echo "\nRunning tests with debug output..."
+        gauge run --verbose specs/ || echo "Tests completed with non-zero exit code"
         
         # Show updated python.properties
         echo "Updated python.properties:"
