@@ -1,0 +1,58 @@
+=== Environment Information ===
+Date: Sat Aug 23 08:53:02 UTC 2025
+PWD: /home/runner/work/gauge-playwright-demo/gauge-playwright-demo
+Directory listing:
+total 680
+drwxr-xr-x 11 runner docker   4096 Aug 23 08:51 .
+drwxr-xr-x  3 runner docker   4096 Aug 23 08:51 ..
+drwxr-x---  3 runner docker   4096 Aug 23 08:53 .gauge
+drwxr-xr-x  7 runner docker   4096 Aug 23 08:51 .git
+drwxr-xr-x  3 runner docker   4096 Aug 23 08:51 .github
+-rw-r--r--  1 runner docker    169 Aug 23 08:51 .gitignore
+drwxr-xr-x  5 runner docker   4096 Aug 23 08:51 .venv
+-rw-r--r--  1 runner docker   5147 Aug 23 08:51 Jenkinsfile
+-rw-r--r--  1 runner docker   4787 Aug 23 08:51 README.md
+-rw-r--r--  1 runner docker 605457 Aug 23 08:53 demo-page.png
+-rw-r--r--  1 runner docker    296 Aug 23 08:51 gauge.properties
+drwxr--r--  2 runner docker   4096 Aug 23 08:51 logs
+-rw-r--r--  1 runner docker    106 Aug 23 08:51 manifest.json
+drwxr-xr-x  3 runner docker   4096 Aug 23 08:51 pkg
+-rw-r--r--  1 runner docker    319 Aug 23 08:52 python.properties
+drwxr-xr-x  3 runner docker   4096 Aug 23 08:51 reports
+-rw-r--r--  1 runner docker      9 Aug 23 08:51 requirements.txt
+-rwxr-xr-x  1 runner docker    165 Aug 23 08:51 run_gauge.sh
+drwxr-xr-x  2 runner docker   4096 Aug 23 08:51 specs
+-rwxr-xr-x  1 runner docker    433 Aug 23 08:51 start.sh
+drwxr-xr-x  3 runner docker   4096 Aug 23 08:52 step_impl
+
+=== Python Information ===
+Python 3.13.7
+Package      Version
+------------ -------
+appdirs      1.4.4
+baron        0.10.1
+debugpy      1.8.16
+distlib      0.4.0
+filelock     3.19.1
+getgauge     0.4.11
+grpcio       1.74.0
+pip          25.2
+platformdirs 4.3.8
+protobuf     6.32.0
+redbaron     0.9.2
+rply         0.7.8
+virtualenv   20.34.0
+
+=== Node.js Information ===
+v20.19.4
+10.8.2
+
+=== Gauge Information ===
+Gauge version: 1.6.20
+Commit Hash: bc05ae1
+
+Plugins
+-------
+html-report (4.3.3)
+python (0.4.11)
+screenshot (0.3.2)

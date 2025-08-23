@@ -1,0 +1,1 @@
+var index = {"Tags":{"single word":["specs/example.html"]},"Specs":{"JFrog Demo Navigation":["specs/jfrog_demo.html"],"Specification Heading":["specs/example.html"]}};
